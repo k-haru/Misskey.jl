@@ -1,0 +1,7 @@
+name = "Misskey"
+uuid = "d9203bdc-cf59-4792-bf89-3b670c13f15f"
+authors = ["k-haru <haru@nips.ac.jp>"]
+version = "0.1.0"
+
+[deps]
+json5peg = "7e54626c-1cd2-41a9-aa63-aa7d3fde250f"
