@@ -15,18 +15,32 @@ end
 
 function generate_function(root, file)
     json5_data = read(joinpath(root, file)) |> String |> json5_parse
-    writeout_name = file |> x -> replace(x, ".json5" => "")
-    writeout_path = joinpath(root, writeout_file * ".jl")
+    properties = json5_data["req"]["properties"]
+    prop_keys = properties |> keys
+    prop_values = properties |> values |> collect .|> x -> x["type"] |> type_to_julia
+    prop_defaults = properties |> values |> collect .|> x -> try x["default"] catch end
+    prop_null = properties |> values |> collect .|> x -> try x["nullable"] catch end
+
+    names_types = zip(prop_keys, prop_values,prop_defaults) |> collect .|> x -> x[1] * "::" * x[2] * (x[3] == nothing ? "" : " = " * "$(x[3])") * "\n"
+
+    name = file |> x -> replace(x, ".json5" => "")
+    writeout_path = joinpath(root, name * ".jl")
     endpoints = root |> x -> split(x, "\\endpoints")[2] |> x -> replace(x,"\\" => "/")
 
+    struct_expr = """
+    @kwdef struct Params
+    $( names_types |> join)
+    token::String = ""
+    end""" |> Meta.parse
 
-    expr = """
-    function $(Symbol("writeout_name"))(str::String ;token::String = "")
-        if json5_data["requireCredential"] == true && token == ""
+    function_expr = """
+    function $(Symbol("writeout_name"))(params::Params)
+    if json5_data["requireCredential"] && (Params.token == "")
             error("This function require credential")
         end
 
         header = Dict("Content-Type" => "application/json")
+
         params = Dict("i" => token, "text" => str) |> JSON.json
         request = HTTP.post("https://misskey.io/api$(endpoints)", header, params)
         request.body |> String |> JSON.parse
@@ -43,17 +57,17 @@ end
 
 function type_to_julia(type)
     if type == "string"
-        return "String"
-    elseif type == "number"
-        return "Number"
+        return String
+    elseif type == "integer"
+        return Int
     elseif type == "boolean"
-        return "Bool"
+        return Bool
     elseif type == "any"
-        return "Any"
+        return Any
     elseif type == "array"
-        return "Array"
+        return Array
     elseif type == "object"
-        return "Dict"
+        return Dict
     end
 end
 
