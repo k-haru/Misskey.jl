@@ -1,0 +1,41 @@
+#= none:1 =# @kwdef struct files_params
+        #= none:2 =#
+        Origin::Union{Nothing, String} = "local"
+        #= none:3 =#
+        UserId::Union{Nothing, String} = nothing
+        #= none:4 =#
+        SinceId::Union{Nothing, String} = nothing
+        #= none:5 =#
+        Hostname::Union{Nothing, String} = nothing
+        #= none:6 =#
+        UntilId::Union{Nothing, String} = nothing
+        #= none:7 =#
+        Type::Union{Nothing, String} = nothing
+        #= none:8 =#
+        Limit::Union{Nothing, Int64} = 10
+        #= none:10 =#
+        i::String = ""
+    end
+""
+function files(server::String, params::files_params)
+    #= none:1 =#
+    #= none:2 =#
+    if false && params.i == ""
+        #= none:3 =#
+        error("This function require credential")
+    end
+    #= none:6 =#
+    header = Dict("Content-Type" => "application/json")
+    #= none:8 =#
+    params = Dict((lowercase(string(key)) => getfield(params, key) for key = propertynames(params))) |> (x->begin
+                    #= none:8 =#
+                    filter((t->begin
+                                    #= none:8 =#
+                                    t.second != nothing
+                                end), x) |> JSON.json
+                end)
+    #= none:9 =#
+    request = HTTP.post("https://$(server)/api/admin/drive/files", header, params)
+    #= none:10 =#
+    (request.body |> String) |> JSON.parse
+end

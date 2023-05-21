@@ -1,10 +1,6 @@
-module Misskey
-
-using HTTP, JSON
-
-
-
-# include child functions in this directory
+    module User
+    using JSON, HTTP
+    # include child functions in this directory
 let
     src_dir = @__DIR__
     functions =
@@ -19,6 +15,5 @@ let
     readdir(src_dir) |> filter(x -> isdir(joinpath(src_dir, x))) .|> uppercasefirst
     modules .|> x -> include(joinpath(src_dir, lowercase(x), replace(x,"-" => "_") * ".jl"))
 
-end
-
-end # module Misskey
+end    end
+    
