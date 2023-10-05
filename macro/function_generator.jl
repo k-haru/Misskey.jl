@@ -1,7 +1,9 @@
-using json5peg, HTTP
+using json5peg, HTTP, LibGit2
 
 this_dir = @__DIR__
 src_dir = joinpath(this_dir, "..", "src")
+repo_url = "https://github.com/misskey-dev/misskey-hub"
+LibGit2.clone(repo_url, joinpath(this_dir , "..","misskey-hub"))
 api_dir = joinpath(this_dir, "..", "misskey-hub", "src", "docs", "api", "endpoints")
 UN(T) = Union{Nothing,T}
 
