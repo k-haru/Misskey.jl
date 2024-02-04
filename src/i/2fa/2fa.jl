@@ -1,4 +1,4 @@
-module 2fa
+module two_fa
 using JSON, HTTP
 # include child functions in this directory
 let
