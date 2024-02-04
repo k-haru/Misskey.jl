@@ -1,29 +1,22 @@
-#= none:1 =# @kwdef struct get_user_ips_params
-        #= none:2 =#
-        UserId::Union{Nothing, String} = nothing
-        #= none:4 =#
-        i::String = ""
-    end
-""
-function get_user_ips(server::String, params::get_user_ips_params)
-    #= none:1 =#
-    #= none:2 =#
-    if true && params.i == ""
-        #= none:3 =#
-        error("This function require credential")
-    end
-    #= none:6 =#
-    header = Dict("Content-Type" => "application/json")
-    #= none:8 =#
-    params = Dict((lowercase(string(key)) => getfield(params, key) for key = propertynames(params))) |> (x->begin
-                    #= none:8 =#
-                    filter((t->begin
-                                    #= none:8 =#
-                                    t.second != nothing
-                                end), x) |> JSON.json
-                end)
-    #= none:9 =#
-    request = HTTP.post("https://$(server)/api/admin/get_user_ips", header, params)
-    #= none:10 =#
-    (request.body |> String) |> JSON.parse
+@kwdef struct get_user_ips_params
+UserId::Union{Nothing, String} = nothing
+
+i::String = ""
 end
+
+#=                     
+No description provided.
+
+**Credential required**: *Yes* / **Permission**: *read:admin:user-ips*
+=#
+function get_user_ips(params::get_user_ips_params)
+    if params.i == "" && true
+        error("/admin/get-user-ips: This function require credential")
+    end
+    header = Dict("Content-Type" => "application/json")
+    url = "https://misskey.io/api/admin/get-user-ips"
+    params = Dict(lowercase(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
+    request = HTTP.post(url, header, params)
+    request.body |> String |> JSON.parse
+end
+

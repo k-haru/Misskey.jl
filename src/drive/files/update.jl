@@ -1,37 +1,26 @@
-#= none:1 =# @kwdef struct update_params
-        #= none:2 =#
-        Name::Union{Nothing, String} = nothing
-        #= none:3 =#
-        FolderId::Union{Nothing, String} = nothing
-        #= none:4 =#
-        IsSensitive::Union{Nothing, Bool} = nothing
-        #= none:5 =#
-        FileId::Union{Nothing, String} = nothing
-        #= none:6 =#
-        Comment::Union{Nothing, String} = nothing
-        #= none:8 =#
-        i::String = ""
-    end
-"ファイルの名前・場所を変更します。"
-function update(server::String, params::update_params)
-    #= none:1 =#
-    #= none:2 =#
-    if true && params.i == ""
-        #= none:3 =#
-        error("This function require credential")
-    end
-    #= none:6 =#
-    header = Dict("Content-Type" => "application/json")
-    #= none:8 =#
-    params = Dict((lowercase(string(key)) => getfield(params, key) for key = propertynames(params))) |> (x->begin
-                    #= none:8 =#
-                    filter((t->begin
-                                    #= none:8 =#
-                                    t.second != nothing
-                                end), x) |> JSON.json
-                end)
-    #= none:9 =#
-    request = HTTP.post("https://$(server)/api/drive/files/update", header, params)
-    #= none:10 =#
-    (request.body |> String) |> JSON.parse
+@kwdef struct update_params
+Name::Union{Nothing, String} = nothing
+FolderId::Union{Nothing, String} = nothing
+IsSensitive::Union{Nothing, Bool} = nothing
+FileId::Union{Nothing, String} = nothing
+Comment::Union{Nothing, String} = nothing
+
+i::String = ""
 end
+
+#=                     
+Update the properties of a drive file.
+
+**Credential required**: *Yes* / **Permission**: *write:drive*
+=#
+function update(params::update_params)
+    if params.i == "" && true
+        error("/drive/files/update: This function require credential")
+    end
+    header = Dict("Content-Type" => "application/json")
+    url = "https://misskey.io/api/drive/files/update"
+    params = Dict(lowercase(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
+    request = HTTP.post(url, header, params)
+    request.body |> String |> JSON.parse
+end
+

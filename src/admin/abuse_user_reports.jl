@@ -1,41 +1,29 @@
-#= none:1 =# @kwdef struct abuse_user_reports_params
-        #= none:2 =#
-        State::Union{Nothing, String} = nothing
-        #= none:3 =#
-        TargetUserOrigin::Union{Nothing, String} = "combined"
-        #= none:4 =#
-        Forwarded::Union{Nothing, Bool} = false
-        #= none:5 =#
-        ReporterOrigin::Union{Nothing, String} = "combined"
-        #= none:6 =#
-        SinceId::Union{Nothing, String} = nothing
-        #= none:7 =#
-        UntilId::Union{Nothing, String} = nothing
-        #= none:8 =#
-        Limit::Union{Nothing, Int64} = 10
-        #= none:10 =#
-        i::String = ""
-    end
-""
-function abuse_user_reports(server::String, params::abuse_user_reports_params)
-    #= none:1 =#
-    #= none:2 =#
-    if true && params.i == ""
-        #= none:3 =#
-        error("This function require credential")
-    end
-    #= none:6 =#
-    header = Dict("Content-Type" => "application/json")
-    #= none:8 =#
-    params = Dict((lowercase(string(key)) => getfield(params, key) for key = propertynames(params))) |> (x->begin
-                    #= none:8 =#
-                    filter((t->begin
-                                    #= none:8 =#
-                                    t.second != nothing
-                                end), x) |> JSON.json
-                end)
-    #= none:9 =#
-    request = HTTP.post("https://$(server)/api/admin/abuse_user_reports", header, params)
-    #= none:10 =#
-    (request.body |> String) |> JSON.parse
+@kwdef struct abuse_user_reports_params
+State::Union{Nothing, String} = nothing
+TargetUserOrigin::Union{Nothing, String} = "combined"
+Forwarded::Union{Nothing, Bool} = false
+ReporterOrigin::Union{Nothing, String} = "combined"
+SinceId::Union{Nothing, String} = nothing
+UntilId::Union{Nothing, String} = nothing
+Category::Union{Nothing, String} = nothing
+Limit::Union{Nothing, Int64} = 10
+
+i::String = ""
 end
+
+#=                     
+No description provided.
+
+**Credential required**: *Yes* / **Permission**: *read:admin:abuse-user-reports*
+=#
+function abuse_user_reports(params::abuse_user_reports_params)
+    if params.i == "" && true
+        error("/admin/abuse-user-reports: This function require credential")
+    end
+    header = Dict("Content-Type" => "application/json")
+    url = "https://misskey.io/api/admin/abuse-user-reports"
+    params = Dict(lowercase(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
+    request = HTTP.post(url, header, params)
+    request.body |> String |> JSON.parse
+end
+

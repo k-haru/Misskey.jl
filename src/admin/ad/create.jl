@@ -1,41 +1,30 @@
-#= none:1 =# @kwdef struct create_params
-        #= none:2 =#
-        Memo::Union{Nothing, String} = nothing
-        #= none:3 =#
-        Place::Union{Nothing, String} = nothing
-        #= none:4 =#
-        Priority::Union{Nothing, String} = nothing
-        #= none:5 =#
-        ImageUrl::Union{Nothing, String} = nothing
-        #= none:6 =#
-        Ratio::Union{Nothing, Int64} = nothing
-        #= none:7 =#
-        ExpiresAt::Union{Nothing, Int64} = nothing
-        #= none:8 =#
-        Url::Union{Nothing, String} = nothing
-        #= none:10 =#
-        i::String = ""
-    end
-""
-function create(server::String, params::create_params)
-    #= none:1 =#
-    #= none:2 =#
-    if true && params.i == ""
-        #= none:3 =#
-        error("This function require credential")
-    end
-    #= none:6 =#
-    header = Dict("Content-Type" => "application/json")
-    #= none:8 =#
-    params = Dict((lowercase(string(key)) => getfield(params, key) for key = propertynames(params))) |> (x->begin
-                    #= none:8 =#
-                    filter((t->begin
-                                    #= none:8 =#
-                                    t.second != nothing
-                                end), x) |> JSON.json
-                end)
-    #= none:9 =#
-    request = HTTP.post("https://$(server)/api/admin/ad/create", header, params)
-    #= none:10 =#
-    (request.body |> String) |> JSON.parse
+@kwdef struct create_params
+Memo::Union{Nothing, String} = nothing
+Place::Union{Nothing, String} = nothing
+Priority::Union{Nothing, String} = nothing
+ImageUrl::Union{Nothing, String} = nothing
+Ratio::Union{Nothing, Int64} = nothing
+DayOfWeek::Union{Nothing, Int64} = nothing
+ExpiresAt::Union{Nothing, Int64} = nothing
+StartsAt::Union{Nothing, Int64} = nothing
+Url::Union{Nothing, String} = nothing
+
+i::String = ""
 end
+
+#=                     
+No description provided.
+
+**Credential required**: *Yes* / **Permission**: *write:admin:ad*
+=#
+function create(params::create_params)
+    if params.i == "" && true
+        error("/admin/ad/create: This function require credential")
+    end
+    header = Dict("Content-Type" => "application/json")
+    url = "https://misskey.io/api/admin/ad/create"
+    params = Dict(lowercase(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
+    request = HTTP.post(url, header, params)
+    request.body |> String |> JSON.parse
+end
+

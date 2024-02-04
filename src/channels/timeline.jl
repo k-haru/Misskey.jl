@@ -1,39 +1,28 @@
-#= none:1 =# @kwdef struct timeline_params
-        #= none:2 =#
-        ChannelId::Union{Nothing, String} = nothing
-        #= none:3 =#
-        UntilDate::Union{Nothing, Int64} = nothing
-        #= none:4 =#
-        SinceId::Union{Nothing, String} = nothing
-        #= none:5 =#
-        UntilId::Union{Nothing, String} = nothing
-        #= none:6 =#
-        SinceDate::Union{Nothing, Int64} = nothing
-        #= none:7 =#
-        Limit::Union{Nothing, Int64} = 10
-        #= none:9 =#
-        i::String = ""
-    end
-""
-function timeline(server::String, params::timeline_params)
-    #= none:1 =#
-    #= none:2 =#
-    if false && params.i == ""
-        #= none:3 =#
-        error("This function require credential")
-    end
-    #= none:6 =#
-    header = Dict("Content-Type" => "application/json")
-    #= none:8 =#
-    params = Dict((lowercase(string(key)) => getfield(params, key) for key = propertynames(params))) |> (x->begin
-                    #= none:8 =#
-                    filter((t->begin
-                                    #= none:8 =#
-                                    t.second != nothing
-                                end), x) |> JSON.json
-                end)
-    #= none:9 =#
-    request = HTTP.post("https://$(server)/api/channels/timeline", header, params)
-    #= none:10 =#
-    (request.body |> String) |> JSON.parse
+@kwdef struct timeline_params
+ChannelId::Union{Nothing, String} = nothing
+UntilDate::Union{Nothing, Int64} = nothing
+SinceId::Union{Nothing, String} = nothing
+UntilId::Union{Nothing, String} = nothing
+AllowPartial::Union{Nothing, Bool} = false
+SinceDate::Union{Nothing, Int64} = nothing
+Limit::Union{Nothing, Int64} = 10
+
+i::String = ""
 end
+
+#=                     
+No description provided.
+
+**Credential required**: *No*
+=#
+function timeline(params::timeline_params)
+    if params.i == "" && false
+        error("/channels/timeline: This function require credential")
+    end
+    header = Dict("Content-Type" => "application/json")
+    url = "https://misskey.io/api/channels/timeline"
+    params = Dict(lowercase(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
+    request = HTTP.post(url, header, params)
+    request.body |> String |> JSON.parse
+end
+

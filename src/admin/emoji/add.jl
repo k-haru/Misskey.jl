@@ -1,29 +1,32 @@
-#= none:1 =# @kwdef struct add_params
-        #= none:2 =#
-        FileId::Union{Nothing, String} = nothing
-        #= none:4 =#
-        i::String = ""
-    end
-""
-function add(server::String, params::add_params)
-    #= none:1 =#
-    #= none:2 =#
-    if true && params.i == ""
-        #= none:3 =#
-        error("This function require credential")
-    end
-    #= none:6 =#
-    header = Dict("Content-Type" => "application/json")
-    #= none:8 =#
-    params = Dict((lowercase(string(key)) => getfield(params, key) for key = propertynames(params))) |> (x->begin
-                    #= none:8 =#
-                    filter((t->begin
-                                    #= none:8 =#
-                                    t.second != nothing
-                                end), x) |> JSON.json
-                end)
-    #= none:9 =#
-    request = HTTP.post("https://$(server)/api/admin/emoji/add", header, params)
-    #= none:10 =#
-    (request.body |> String) |> JSON.parse
+@kwdef struct add_params
+RequestedBy::Union{Nothing, String} = nothing
+RoleIdsThatCanNotBeUsedThisEmojiAsReaction::Union{Nothing, Array} = nothing
+FileId::Union{Nothing, String} = nothing
+RoleIdsThatCanBeUsedThisEmojiAsReaction::Union{Nothing, Array} = nothing
+Aliases::Union{Nothing, Array} = nothing
+Name::Union{Nothing, String} = nothing
+Memo::Union{Nothing, String} = nothing
+LocalOnly::Union{Nothing, Bool} = nothing
+Category::Union{Nothing, String} = nothing
+IsSensitive::Union{Nothing, Bool} = nothing
+License::Union{Nothing, String} = nothing
+
+i::String = ""
 end
+
+#=                     
+No description provided.
+
+**Credential required**: *Yes* / **Permission**: *write:admin:emoji*
+=#
+function add(params::add_params)
+    if params.i == "" && true
+        error("/admin/emoji/add: This function require credential")
+    end
+    header = Dict("Content-Type" => "application/json")
+    url = "https://misskey.io/api/admin/emoji/add"
+    params = Dict(lowercase(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
+    request = HTTP.post(url, header, params)
+    request.body |> String |> JSON.parse
+end
+

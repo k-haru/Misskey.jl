@@ -1,35 +1,25 @@
-#= none:1 =# @kwdef struct list_params
-        #= none:2 =#
-        SinceId::Union{Nothing, String} = nothing
-        #= none:3 =#
-        UntilId::Union{Nothing, String} = nothing
-        #= none:4 =#
-        Query::Union{Nothing, String} = nothing
-        #= none:5 =#
-        Limit::Union{Nothing, Int64} = 10
-        #= none:7 =#
-        i::String = ""
-    end
-""
-function list(server::String, params::list_params)
-    #= none:1 =#
-    #= none:2 =#
-    if true && params.i == ""
-        #= none:3 =#
-        error("This function require credential")
-    end
-    #= none:6 =#
-    header = Dict("Content-Type" => "application/json")
-    #= none:8 =#
-    params = Dict((lowercase(string(key)) => getfield(params, key) for key = propertynames(params))) |> (x->begin
-                    #= none:8 =#
-                    filter((t->begin
-                                    #= none:8 =#
-                                    t.second != nothing
-                                end), x) |> JSON.json
-                end)
-    #= none:9 =#
-    request = HTTP.post("https://$(server)/api/admin/emoji/list", header, params)
-    #= none:10 =#
-    (request.body |> String) |> JSON.parse
+@kwdef struct list_params
+SinceId::Union{Nothing, String} = nothing
+UntilId::Union{Nothing, String} = nothing
+Query::Union{Nothing, String} = nothing
+Limit::Union{Nothing, Int64} = 10
+
+i::String = ""
 end
+
+#=                     
+No description provided.
+
+**Credential required**: *Yes* / **Permission**: *read:admin:emoji*
+=#
+function list(params::list_params)
+    if params.i == "" && true
+        error("/admin/emoji/list: This function require credential")
+    end
+    header = Dict("Content-Type" => "application/json")
+    url = "https://misskey.io/api/admin/emoji/list"
+    params = Dict(lowercase(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
+    request = HTTP.post(url, header, params)
+    request.body |> String |> JSON.parse
+end
+

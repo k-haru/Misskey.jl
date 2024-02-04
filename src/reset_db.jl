@@ -1,27 +1,20 @@
-#= none:1 =# @kwdef struct reset_db_params
-        #= none:3 =#
-        i::String = ""
-    end
-"データベースを初期化して、Redisのデータを消去します。NODE_ENV環境変数がtestingに設定されている場合のみ動作します。"
-function reset_db(server::String, params::reset_db_params)
-    #= none:1 =#
-    #= none:2 =#
-    if false && params.i == ""
-        #= none:3 =#
-        error("This function require credential")
-    end
-    #= none:6 =#
-    header = Dict("Content-Type" => "application/json")
-    #= none:8 =#
-    params = Dict((lowercase(string(key)) => getfield(params, key) for key = propertynames(params))) |> (x->begin
-                    #= none:8 =#
-                    filter((t->begin
-                                    #= none:8 =#
-                                    t.second != nothing
-                                end), x) |> JSON.json
-                end)
-    #= none:9 =#
-    request = HTTP.post("https://$(server)/api/reset_db", header, params)
-    #= none:10 =#
-    (request.body |> String) |> JSON.parse
+@kwdef struct reset_db_params
+i::String = ""
 end
+
+#=                     
+Only available when running with <code>NODE_ENV=testing</code>. Reset the database and flush Redis.
+
+**Credential required**: *No*
+=#
+function reset_db(params::reset_db_params)
+    if params.i == "" && false
+        error("/reset-db: This function require credential")
+    end
+    header = Dict("Content-Type" => "application/json")
+    url = "https://misskey.io/api/reset-db"
+    params = Dict(lowercase(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
+    request = HTTP.post(url, header, params)
+    request.body |> String |> JSON.parse
+end
+

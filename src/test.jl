@@ -1,37 +1,26 @@
-#= none:1 =# @kwdef struct test_params
-        #= none:2 =#
-        String::Union{Nothing, String} = nothing
-        #= none:3 =#
-        Default::Union{Nothing, String} = "hello"
-        #= none:4 =#
-        NullableDefault::Union{Nothing, String} = "hello"
-        #= none:5 =#
-        Required::Union{Nothing, Bool} = nothing
-        #= none:6 =#
-        Id::Union{Nothing, String} = nothing
-        #= none:8 =#
-        i::String = ""
-    end
-""
-function test(server::String, params::test_params)
-    #= none:1 =#
-    #= none:2 =#
-    if false && params.i == ""
-        #= none:3 =#
-        error("This function require credential")
-    end
-    #= none:6 =#
-    header = Dict("Content-Type" => "application/json")
-    #= none:8 =#
-    params = Dict((lowercase(string(key)) => getfield(params, key) for key = propertynames(params))) |> (x->begin
-                    #= none:8 =#
-                    filter((t->begin
-                                    #= none:8 =#
-                                    t.second != nothing
-                                end), x) |> JSON.json
-                end)
-    #= none:9 =#
-    request = HTTP.post("https://$(server)/api/test", header, params)
-    #= none:10 =#
-    (request.body |> String) |> JSON.parse
+@kwdef struct test_params
+String::Union{Nothing, String} = nothing
+Default::Union{Nothing, String} = "hello"
+NullableDefault::Union{Nothing, String} = "hello"
+Required::Union{Nothing, Bool} = nothing
+Id::Union{Nothing, String} = nothing
+
+i::String = ""
 end
+
+#=                     
+Endpoint for testing input validation.
+
+**Credential required**: *No*
+=#
+function test(params::test_params)
+    if params.i == "" && false
+        error("/test: This function require credential")
+    end
+    header = Dict("Content-Type" => "application/json")
+    url = "https://misskey.io/api/test"
+    params = Dict(lowercase(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
+    request = HTTP.post(url, header, params)
+    request.body |> String |> JSON.parse
+end
+
