@@ -23,7 +23,12 @@ endpoints = keys(api["paths"]) |> collect |> sort |> eps -> sort(eps, by=ep -> c
 
 for endpoint in endpoints
     # make path
-    endpoint_dir = endpoint |> st -> split(st, "/")[1:end-1] |> st -> joinpath(src_dir, st...)
+    endpoint_dir = endpoint |> st -> split(st, "/")[1:end-1]
+    # if endpoint_dir's top directory start with a number, then add "_" to the directory name
+    if startswith(endpoint_dir[end], r"\d")
+        endpoint_dir[end] = "_" * endpoint_dir[end]
+    end
+    endpoint_dir = endpoint_dir |> st -> joinpath(src_dir, st...)
     endpoint_dir |> mkpath
     # make file
     post_data = paths[endpoint]["post"]
@@ -36,13 +41,9 @@ for endpoint in endpoints
     end
 end
 
-function generate_module(root,dir)
+function generate_module(root, dir)
     module_name = dir |> uppercasefirst |> x -> replace(x, "-" => "_")
-    # if module_name include number, add underscore
-    if occursin(r"\d", module_name)
-        module_name = replace(module_name, r"(\d)" => s"_\1")
-    end
-    module_path = joinpath(root, dir, module_name*".jl")
+    module_path = joinpath(root, dir, module_name * ".jl")
     module_expr = """
     module $(module_name)
     using JSON, HTTP
