@@ -38,6 +38,10 @@ end
 
 function generate_module(root,dir)
     module_name = dir |> uppercasefirst |> x -> replace(x, "-" => "_")
+    # if module_name include number, add underscore
+    if occursin(r"\d", module_name)
+        module_name = replace(module_name, r"(\d)" => s"_\1")
+    end
     module_path = joinpath(root, dir, module_name*".jl")
     module_expr = """
     module $(module_name)

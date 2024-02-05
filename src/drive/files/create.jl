@@ -19,15 +19,20 @@ function create(params::create_params)
     if params.i == "" && true
         error("/drive/files/create: This function require credential")
     end
-    header = Dict("Content-Type" => "multipart/form-data")
+    
     url = "https://misskey.io/api/drive/files/create"
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> 
-    x -> filter(t -> t.second != nothing,x) |> 
-    x -> map(t -> isa(t.second,Bool) ? t.second = string(t.second) : t, x)
+    x -> filter(t -> t.second != nothing,x) 
+
+    for (key, value) in params
+        if typeof(value) == Bool
+            params[key] = string(value)
+        end
+    end
 
     body = HTTP.Form(params)
 
-    request = HTTP.post(url, header, body)
+    request = HTTP.post(url, [], body)
     request.body |> String |> JSON.parse
 end
 

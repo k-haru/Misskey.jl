@@ -112,15 +112,20 @@ function generate_endpoint(endpoint, post_data, server)
             if params.i == "" && $(credentials_required)
                 error("$(endpoint): This function require credential")
             end
-            header = $(header)
+            
             url = "https://$(server)/api$(endpoint)"
             params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> 
-            x -> filter(t -> t.second != nothing,x) |> 
-            x -> map(t -> isa(t.second,Bool) ? t.second = string(t.second) : t, x)
+            x -> filter(t -> t.second != nothing,x) 
+
+            for (key, value) in params
+                if typeof(value) == Bool
+                    params[key] = string(value)
+                end
+            end
 
             body = HTTP.Form(params)
 
-            request = HTTP.post(url, header, body)
+            request = HTTP.post(url, [], body)
             request.body |> String |> JSON.parse
         end
         """
