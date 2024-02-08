@@ -14,12 +14,12 @@ No description provided.
 
 **Credential required**: *Yes* / **Permission**: *read:account*
 =#
-function mentions(params::mentions_params)
+function mentions(server,params::mentions_params)
     if params.i == "" && true
         error("/notes/mentions: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/notes/mentions"
+    url = string("https://",server,"/api","/notes/mentions")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

@@ -16,12 +16,12 @@ No description provided.
 
 **Credential required**: *Yes* / **Permission**: *write:admin:abuse-report-resolvers*
 =#
-function update(params::update_params)
+function update(server,params::update_params)
     if params.i == "" && true
         error("/admin/abuse-report-resolver/update: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/admin/abuse-report-resolver/update"
+    url = string("https://",server,"/api","/admin/abuse-report-resolver/update")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

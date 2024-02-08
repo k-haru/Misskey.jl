@@ -20,12 +20,12 @@ No description provided.
 
 **Credential required**: *Yes* / **Permission**: *read:account*
 =#
-function timeline(params::timeline_params)
+function timeline(server,params::timeline_params)
     if params.i == "" && true
         error("/notes/timeline: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/notes/timeline"
+    url = string("https://",server,"/api","/notes/timeline")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

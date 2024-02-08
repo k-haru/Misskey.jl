@@ -21,12 +21,12 @@ No description provided.
 
 **Credential required**: *Yes* / **Permission**: *write:account*
 =#
-function update(params::update_params)
+function update(server,params::update_params)
     if params.i == "" && true
         error("/antennas/update: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/antennas/update"
+    url = string("https://",server,"/api","/antennas/update")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

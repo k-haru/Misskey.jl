@@ -18,12 +18,12 @@ No description provided.
 
 **Credential required**: *No*
 =#
-function search_by_tag(params::search_by_tag_params)
+function search_by_tag(server,params::search_by_tag_params)
     if params.i == "" && false
         error("/notes/search-by-tag: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/notes/search-by-tag"
+    url = string("https://",server,"/api","/notes/search-by-tag")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

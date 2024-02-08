@@ -14,12 +14,12 @@ No description provided.
 
 **Credential required**: *No* / **Permission**: *read:account*
 =#
-function get_memberships(params::get_memberships_params)
+function get_memberships(server,params::get_memberships_params)
     if params.i == "" && false
         error("/users/lists/get-memberships: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/users/lists/get-memberships"
+    url = string("https://",server,"/api","/users/lists/get-memberships")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

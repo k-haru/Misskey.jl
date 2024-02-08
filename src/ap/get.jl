@@ -10,12 +10,12 @@ No description provided.
 
 **Credential required**: *Yes* / **Permission**: *read:federation*
 =#
-function get(params::get_params)
+function get(server,params::get_params)
     if params.i == "" && true
         error("/ap/get: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/ap/get"
+    url = string("https://",server,"/api","/ap/get")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

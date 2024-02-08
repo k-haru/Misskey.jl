@@ -10,12 +10,12 @@ No description provided.
 
 **Credential required**: *No*
 =#
-function ranking(params::ranking_params)
+function ranking(server,params::ranking_params)
     if params.i == "" && false
         error("/bubble-game/ranking: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/bubble-game/ranking"
+    url = string("https://",server,"/api","/bubble-game/ranking")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

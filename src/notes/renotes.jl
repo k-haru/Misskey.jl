@@ -13,12 +13,12 @@ No description provided.
 
 **Credential required**: *No*
 =#
-function renotes(params::renotes_params)
+function renotes(server,params::renotes_params)
     if params.i == "" && false
         error("/notes/renotes: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/notes/renotes"
+    url = string("https://",server,"/api","/notes/renotes")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

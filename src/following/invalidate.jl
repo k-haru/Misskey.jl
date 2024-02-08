@@ -10,12 +10,12 @@ No description provided.
 
 **Credential required**: *Yes* / **Permission**: *write:following*
 =#
-function invalidate(params::invalidate_params)
+function invalidate(server,params::invalidate_params)
     if params.i == "" && true
         error("/following/invalidate: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/following/invalidate"
+    url = string("https://",server,"/api","/following/invalidate")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

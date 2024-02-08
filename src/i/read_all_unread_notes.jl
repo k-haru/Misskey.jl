@@ -8,12 +8,12 @@ No description provided.
 
 **Credential required**: *Yes* / **Permission**: *write:account*
 =#
-function read_all_unread_notes(params::read_all_unread_notes_params)
+function read_all_unread_notes(server,params::read_all_unread_notes_params)
     if params.i == "" && true
         error("/i/read-all-unread-notes: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/i/read-all-unread-notes"
+    url = string("https://",server,"/api","/i/read-all-unread-notes")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

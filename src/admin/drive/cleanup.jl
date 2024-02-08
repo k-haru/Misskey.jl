@@ -8,12 +8,12 @@ No description provided.
 
 **Credential required**: *Yes* / **Permission**: *write:admin:drive*
 =#
-function cleanup(params::cleanup_params)
+function cleanup(server,params::cleanup_params)
     if params.i == "" && true
         error("/admin/drive/cleanup: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/admin/drive/cleanup"
+    url = string("https://",server,"/api","/admin/drive/cleanup")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

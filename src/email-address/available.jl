@@ -10,12 +10,12 @@ No description provided.
 
 **Credential required**: *No*
 =#
-function available(params::available_params)
+function available(server,params::available_params)
     if params.i == "" && false
         error("/email-address/available: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/email-address/available"
+    url = string("https://",server,"/api","/email-address/available")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

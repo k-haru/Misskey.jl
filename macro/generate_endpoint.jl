@@ -95,12 +95,12 @@ function generate_endpoint(endpoint, post_data, server)
         #=                     
         $(description)
         =#
-        function $(name)(params::$(string(name, "_params")))
+        function $(name)(server,params::$(string(name, "_params")))
             if params.i == "" && $(credentials_required)
                 error("$(endpoint): This function require credential")
             end
             header = $(header)
-            url = "https://$(server)/api$(endpoint)"
+            url = string("https://",server,"/api","$(endpoint)")
             params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
             request = HTTP.post(url, header, params)
             request.body |> String |> JSON.parse

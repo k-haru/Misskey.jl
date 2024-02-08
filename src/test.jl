@@ -14,12 +14,12 @@ Endpoint for testing input validation.
 
 **Credential required**: *No*
 =#
-function test(params::test_params)
+function test(server,params::test_params)
     if params.i == "" && false
         error("/test: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/test"
+    url = string("https://",server,"/api","/test")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

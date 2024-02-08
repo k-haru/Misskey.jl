@@ -8,12 +8,12 @@ No description provided.
 
 **Credential required**: *Yes* / **Permission**: *read:admin:queue*
 =#
-function inbox_delayed(params::inbox_delayed_params)
+function inbox_delayed(server,params::inbox_delayed_params)
     if params.i == "" && true
         error("/admin/queue/inbox-delayed: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/admin/queue/inbox-delayed"
+    url = string("https://",server,"/api","/admin/queue/inbox-delayed")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

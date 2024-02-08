@@ -11,12 +11,12 @@ No description provided.
 
 **Credential required**: *No*
 =#
-function userkey(params::userkey_params)
+function userkey(server,params::userkey_params)
     if params.i == "" && false
         error("/auth/session/userkey: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/auth/session/userkey"
+    url = string("https://",server,"/api","/auth/session/userkey")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

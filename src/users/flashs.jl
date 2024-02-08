@@ -13,12 +13,12 @@ Show all flashs this user created.
 
 **Credential required**: *No*
 =#
-function flashs(params::flashs_params)
+function flashs(server,params::flashs_params)
     if params.i == "" && false
         error("/users/flashs: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/users/flashs"
+    url = string("https://",server,"/api","/users/flashs")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

@@ -12,12 +12,12 @@ No description provided.
 
 **Credential required**: *Yes* / **Permission**: *read:channels*
 =#
-function owned(params::owned_params)
+function owned(server,params::owned_params)
     if params.i == "" && true
         error("/channels/owned: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/channels/owned"
+    url = string("https://",server,"/api","/channels/owned")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

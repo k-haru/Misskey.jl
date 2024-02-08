@@ -13,12 +13,12 @@ No description provided.
 
 **Credential required**: *Yes* / **Permission**: *read:drive*
 =#
-function stream(params::stream_params)
+function stream(server,params::stream_params)
     if params.i == "" && true
         error("/drive/stream: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/drive/stream"
+    url = string("https://",server,"/api","/drive/stream")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

@@ -8,12 +8,12 @@ No description provided.
 
 **Credential required**: *No*
 =#
-function emojis(params::emojis_params)
+function emojis(server,params::emojis_params)
     if params.i == "" && false
         error("/emojis: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/emojis"
+    url = string("https://",server,"/api","/emojis")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

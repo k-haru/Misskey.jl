@@ -15,12 +15,12 @@ No description provided.
 **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
 **Credential required**: *Yes*
 =#
-function gen_token(params::gen_token_params)
+function gen_token(server,params::gen_token_params)
     if params.i == "" && true
         error("/miauth/gen-token: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/miauth/gen-token"
+    url = string("https://",server,"/api","/miauth/gen-token")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

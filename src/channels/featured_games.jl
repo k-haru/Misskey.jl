@@ -8,12 +8,12 @@ No description provided.
 
 **Credential required**: *No*
 =#
-function featured_games(params::featured_games_params)
+function featured_games(server,params::featured_games_params)
     if params.i == "" && false
         error("/channels/featured-games: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/channels/featured-games"
+    url = string("https://",server,"/api","/channels/featured-games")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

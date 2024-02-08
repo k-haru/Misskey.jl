@@ -11,12 +11,12 @@ Request a users password to be reset.
 
 **Credential required**: *No*
 =#
-function request_reset_password(params::request_reset_password_params)
+function request_reset_password(server,params::request_reset_password_params)
     if params.i == "" && false
         error("/request-reset-password: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/request-reset-password"
+    url = string("https://",server,"/api","/request-reset-password")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

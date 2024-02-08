@@ -13,12 +13,12 @@ No description provided.
 
 **Credential required**: *No*
 =#
-function notes(params::notes_params)
+function notes(server,params::notes_params)
     if params.i == "" && false
         error("/charts/user/notes: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/charts/user/notes"
+    url = string("https://",server,"/api","/charts/user/notes")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse

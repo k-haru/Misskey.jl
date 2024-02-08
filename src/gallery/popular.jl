@@ -8,12 +8,12 @@ No description provided.
 
 **Credential required**: *No*
 =#
-function popular(params::popular_params)
+function popular(server,params::popular_params)
     if params.i == "" && false
         error("/gallery/popular: This function require credential")
     end
     header = Dict("Content-Type" => "application/json")
-    url = "https://misskey.io/api/gallery/popular"
+    url = string("https://",server,"/api","/gallery/popular")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> x -> filter(t -> t.second != nothing,x) |> JSON.json
     request = HTTP.post(url, header, params)
     request.body |> String |> JSON.parse
