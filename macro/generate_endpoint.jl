@@ -49,12 +49,9 @@ function generate_endpoint(endpoint, post_data, server)
             schema = content["multipart/form-data"]["schema"]
             properties = schema["properties"]
             prop_keys = properties |> keys |> collect
-            prop_values = properties |> values |> collect .|> x -> 
-            if haskey(x, "format")
-                return HTTP.Multipart{IOStream}
-            elseif haskey(x, "type")
-                x["type"] |> type_to_julia
-            end
+            prop_values = properties |> values |> collect
+            prop_types = prop_values |> collect .|> x -> x["type"] |> type_to_julia
+
 
             prop_defaults = properties |> values |> collect .|> x -> try
                                 x["default"]
@@ -62,7 +59,7 @@ function generate_endpoint(endpoint, post_data, server)
                             end
             prop_initialize = prop_defaults .|> isnothing
             names_types =
-                zip(prop_keys, prop_values, prop_initialize, prop_defaults) |>
+                zip(prop_keys, prop_types, prop_initialize, prop_defaults) |>
                 collect .|>
                 x -> string(
                     uppercasefirst(x[1]),
@@ -118,6 +115,7 @@ function generate_endpoint(endpoint, post_data, server)
             if params.i == "" && $(credentials_required)
                 error("$(endpoint): This function require credential")
             end
+
             
             url = "https://$(server)/api$(endpoint)"
             params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> 
@@ -126,6 +124,13 @@ function generate_endpoint(endpoint, post_data, server)
             for (key, value) in params
                 if typeof(value) == Bool
                     params[key] = string(value)
+                end
+                if key == "file" 
+                    if isfile(value)
+                        params[key] = HTTP.Multipart(value,open(value))
+                    else
+                        error(value," is not a file")
+                    end
                 end
             end
 
