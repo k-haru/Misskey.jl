@@ -15,13 +15,13 @@ Upload a new drive file.
 
 **Credential required**: *Yes* / **Permission**: *write:drive*
 =#
-function create(params::create_params)
+function create(server,params::create_params)
     if params.i == "" && true
         error("/drive/files/create: This function require credential")
     end
 
     
-    url = "https://misskey.io/api/drive/files/create"
+    url = string("https://",server,"/api","/drive/files/create")
     params = Dict(lowercasefirst(string(key)) => getfield(params, key) for key in propertynames(params)) |> 
     x -> filter(t -> t.second != nothing,x) 
 
